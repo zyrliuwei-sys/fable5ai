@@ -4,32 +4,52 @@
     "pricing": "价格"
   },
   "hero": {
+    "headline": "少写样板代码，多做产品。",
+    "subheadline": "预置支付、认证、权限和积分系统 — 让你的 SaaS 从数月缩短到数天。",
     "cta": "立即开始",
     "secondary": "控制台"
   },
+  "chips": {
+    "auth": "身份认证",
+    "payment": "支付系统",
+    "subscription": "订阅管理",
+    "credits": "积分系统",
+    "rbac": "权限管理",
+    "i18n": "国际化",
+    "cms": "内容管理",
+    "api_keys": "API 密钥"
+  },
   "features": {
     "title": "开箱即用的完整功能",
-    "description": "预置的业务逻辑，让你专注于产品本身",
+    "description": "预置的业务逻辑，让你专注于产品本身。",
     "auth": {
       "title": "身份认证",
-      "description": "邮箱密码、Google、GitHub OAuth 登录，开箱即用，自带会话管理"
+      "description": "邮箱密码、Google、GitHub OAuth 登录，开箱即用，自带会话管理和账号关联。"
     },
     "payment": {
       "title": "支付系统",
-      "description": "Stripe、PayPal、支付宝、微信支付 — 结账、订阅和 Webhook 全链路"
+      "description": "Stripe、PayPal、支付宝、微信支付 — 结账、订阅、Webhook 和订单管理。"
     },
     "rbac": {
-      "title": "权限管理",
-      "description": "角色、权限、通配符匹配 — 完整的管理后台和用户管理"
+      "title": "角色与权限",
+      "description": "细粒度的 RBAC 权限控制，支持通配符匹配。完整的管理后台管理用户、角色和权限。"
     },
     "i18n": {
       "title": "国际化",
-      "description": "内置中英文支持，路由感知语言，轻松添加更多语言"
+      "description": "内置中英文支持，路由感知语言切换，轻松扩展更多语言。"
+    },
+    "cms": {
+      "title": "内容管理",
+      "description": "分类和文章的完整 CRUD，支持状态管理和管理后台 — 快速搭建博客或文档。"
+    },
+    "credits": {
+      "title": "积分系统",
+      "description": "FIFO 消费、过期控制、注册自动发放和撤销 — 为按量计费做好准备。"
     }
   },
   "pricing": {
     "title": "简单透明的价格",
-    "description": "选择适合你的方案",
+    "description": "选择适合你的方案。",
     "monthly": "月付",
     "popular": "热门",
     "starter": "入门版",
@@ -52,8 +72,13 @@
   },
   "footer": {
     "product": "产品",
+    "resources": "资源",
     "legal": "法律信息",
     "privacy": "隐私政策",
-    "terms": "服务条款"
+    "terms": "服务条款",
+    "dashboard": "控制台",
+    "admin": "管理后台",
+    "docs": "文档",
+    "github": "GitHub"
   }
 }

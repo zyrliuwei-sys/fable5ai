@@ -4,32 +4,52 @@
     "pricing": "Pricing"
   },
   "hero": {
+    "headline": "Less boilerplate, more product.",
+    "subheadline": "Pre-wired payments, auth, RBAC, and credits — so you can ship your SaaS in days, not months.",
     "cta": "Get Started",
     "secondary": "Dashboard"
   },
+  "chips": {
+    "auth": "Authentication",
+    "payment": "Payments",
+    "subscription": "Subscriptions",
+    "credits": "Credits",
+    "rbac": "RBAC",
+    "i18n": "i18n",
+    "cms": "CMS",
+    "api_keys": "API Keys"
+  },
   "features": {
     "title": "Everything you need to ship",
-    "description": "Pre-wired business logic so you can focus on your product",
+    "description": "Pre-wired business logic so you can focus on building your product.",
     "auth": {
       "title": "Authentication",
-      "description": "Email/password, Google, GitHub OAuth — ready out of the box with session management"
+      "description": "Email/password, Google, and GitHub OAuth — ready out of the box with session management and account linking."
     },
     "payment": {
       "title": "Payments",
-      "description": "Stripe, PayPal, Alipay, WeChat Pay — checkout, subscriptions, and webhooks"
+      "description": "Stripe, PayPal, Alipay, WeChat Pay — checkout, subscriptions, webhooks, and order management."
     },
     "rbac": {
-      "title": "RBAC",
-      "description": "Roles, permissions, wildcard matching — full admin panel with user management"
+      "title": "Roles & Permissions",
+      "description": "Fine-grained RBAC with wildcard matching. Full admin panel for managing users, roles, and permissions."
     },
     "i18n": {
       "title": "Internationalization",
-      "description": "English and Chinese built-in, locale-aware routing, easy to add more languages"
+      "description": "English and Chinese built-in with locale-aware routing. Easy to extend with additional languages."
+    },
+    "cms": {
+      "title": "Content Management",
+      "description": "Categories and posts with full CRUD, status management, and admin panel — build your blog or docs."
+    },
+    "credits": {
+      "title": "Credit System",
+      "description": "FIFO consumption, expiration, auto-grant on signup, and revocation — ready for usage-based billing."
     }
   },
   "pricing": {
     "title": "Simple pricing",
-    "description": "Choose the plan that works for you",
+    "description": "Choose the plan that works for you.",
     "monthly": "Monthly",
     "popular": "Popular",
     "starter": "Starter",
@@ -52,8 +72,13 @@
   },
   "footer": {
     "product": "Product",
+    "resources": "Resources",
     "legal": "Legal",
     "privacy": "Privacy Policy",
-    "terms": "Terms of Service"
+    "terms": "Terms of Service",
+    "dashboard": "Dashboard",
+    "admin": "Admin Panel",
+    "docs": "Documentation",
+    "github": "GitHub"
   }
 }
