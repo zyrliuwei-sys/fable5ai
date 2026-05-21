@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/db-setup.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "mkdir -p data && (test -f src/config/db/schema.ts || cp src/config/db/schema.sqlite.ts src/config/db/schema.ts)",
-    "db:setup": "node -e \"const p=process.env.DATABASE_PROVIDER||'sqlite'; require('fs').copyFileSync('src/config/db/schema.'+p+'.ts','src/config/db/schema.ts'); console.log('Schema set to '+p)\"",
+    "postinstall": "mkdir -p data && (test -f src/config/db/schema.ts || node scripts/db-setup.mjs)",
+    "db:setup": "node scripts/db-setup.mjs",
     "db:push": "tsx scripts/with-env.ts drizzle-kit push --config=drizzle.config.ts",
     "db:generate": "tsx scripts/with-env.ts drizzle-kit generate --config=drizzle.config.ts",
     "db:migrate": "tsx scripts/with-env.ts drizzle-kit migrate --config=drizzle.config.ts",
@@ -66,5 +67,14 @@
     "tailwindcss": "^4.1.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "@swc/core",
+      "esbuild",
+      "msw",
+      "sharp"
+    ]
   }
 }
