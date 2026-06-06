@@ -1,12 +1,12 @@
 ---
 name: sync-upstream
-description: Port the latest ShipAny Next template changes from the upstream repo (git@github.com:shipany-ai/shipany-next, dev branch) into this TanStack Start repo, adapting framework-coupled code (next-intl→paraglide, app router→file routes) along the way. Use when the user asks to "update from upstream", "sync the template", "拉取上游更新", "更新模板", or wants the newest ShipAny features in shipany-tanstack.
+description: Port the latest ShipAny Next template changes from the upstream repo (git@github.com:shipany-ai/shipany-next, main branch) into this TanStack Start repo, adapting framework-coupled code (next-intl→paraglide, app router→file routes) along the way. Use when the user asks to "update from upstream", "sync the template", "拉取上游更新", "更新模板", or wants the newest ShipAny features in shipany-tanstack.
 ---
 
 # Sync Upstream (shipany-tanstack ← shipany-next)
 
 Port the latest features from `shipany-ai/shipany-next` (the Next.js edition,
-`dev` branch) into this TanStack Start repo. **This is a port-based sync, not a
+`main` branch) into this TanStack Start repo. **This is a port-based sync, not a
 git merge** — the framework layer was replaced wholesale (Next.js → TanStack
 Start, next-intl → paraglide), so upstream commits are re-applied selectively
 and adapted. This repo has zero merge commits by design; keep it that way.
@@ -46,7 +46,7 @@ in shipany-next, then arrive here through this skill.
 git status --porcelain       # must be empty — ask the user to commit/stash first
 git remote get-url upstream 2>/dev/null \
   || git remote add upstream git@github.com:shipany-ai/shipany-next.git
-git fetch upstream dev
+git fetch upstream main
 ```
 
 If the SSH fetch fails, switch to HTTPS (`https://github.com/shipany-ai/shipany-next.git`) and retry.
@@ -67,7 +67,7 @@ git log --grep '^Upstream-sync:' -1 --format=%B | grep '^Upstream-sync:'
 ### 3. Review what's incoming
 
 ```bash
-git log --oneline --reverse <baseline>..upstream/dev
+git log --oneline --reverse <baseline>..upstream/main
 ```
 
 - Empty → already up to date; report and stop.
@@ -126,7 +126,7 @@ Do NOT push — let the user review first.
 
 ## Rules
 
-1. **Never `git merge upstream/dev`** — the framework layers diverged; a merge
+1. **Never `git merge upstream/main`** — the framework layers diverged; a merge
    would replay months of Next.js-only history as conflicts.
 2. **The layer map decides** what is ported, adapted, re-implemented, or skipped.
 3. **Record the `Upstream-sync:` trailer** on every port commit — it is the
