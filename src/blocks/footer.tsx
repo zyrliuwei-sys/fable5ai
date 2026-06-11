@@ -23,13 +23,12 @@ function XIcon(props: SVGProps<SVGSVGElement>) {
 }
 
 export function Footer() {
-  
   const columns: FooterColumn[] = [
     {
-      title: m["landing.footer.feature"](),
+      title: m["landing.footer.product"](),
       links: [
-        { label: m["landing.footer.settings"](), href: "/settings", external: true},
-        { label: m["landing.footer.admin"](), href: "/admin", external: true },
+        { label: m["landing.nav.features"](), href: "/#features" },
+        { label: m["landing.nav.pricing"](), href: "/pricing" },
       ],
     },
     {

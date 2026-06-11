@@ -10,22 +10,24 @@ import {
 const FAQ_KEYS = ["stack", "payment", "database", "customize", "license"] as const;
 
 export function FAQ() {
-  
   return (
     <section id="faq" className="px-4 py-24 sm:py-32">
       <div className="mx-auto max-w-3xl">
         <div className="text-center mb-16">
-          <h2 className="font-serif font-medium text-4xl sm:text-5xl tracking-tight">
+          <p className="text-sm font-medium text-purple-400 tracking-wide uppercase mb-4">
+            FAQ
+          </p>
+          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">
             {m["landing.faq.title"]()}
           </h2>
-          <p className="mt-5 text-muted-foreground">
+          <p className="mt-5 text-muted-foreground text-lg">
             {m["landing.faq.description"]()}
           </p>
         </div>
         <Accordion className="w-full">
           {FAQ_KEYS.map((key) => (
-            <AccordionItem key={key} value={key}>
-              <AccordionTrigger className="cursor-pointer py-6 text-left text-base font-medium hover:no-underline">
+            <AccordionItem key={key} value={key} className="border-white/10">
+              <AccordionTrigger className="cursor-pointer py-6 text-left text-base font-medium hover:no-underline hover:text-purple-300">
                 {tDynamic(`landing.faq.${key}.question`)}
               </AccordionTrigger>
               <AccordionContent className="pb-6 text-muted-foreground leading-relaxed">

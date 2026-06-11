@@ -4,23 +4,18 @@ import { Hero } from "@/blocks/hero";
 import { Features } from "@/blocks/features";
 import { Pricing } from "@/blocks/pricing";
 import { FAQ } from "@/blocks/faq";
-import { Blog } from "@/blocks/blog";
 import { CTA } from "@/blocks/cta";
 import { Footer } from "@/blocks/footer";
 import { SupportWidget } from "@/blocks/support-widget";
 import { envConfigs } from "@/config";
-import { getBlogPostsFn } from "@/content/posts/server";
 import { m } from "@/paraglide/messages.js";
 import { getLocale, locales, localizeUrl } from "@/paraglide/runtime.js";
 
 /**
- * Default landing page — demo content. Rewrite this file (and the blocks in
- * src/blocks/) for your project. The primitives in src/components/ stay.
- * See /quick-start or /clone-website to automate the rewrite.
+ * Fable5AI landing page — AI-Powered Design Tool.
+ * Inspired by lovart.ai's dark premium aesthetic.
  */
 function HomePage() {
-  const { posts } = Route.useLoaderData();
-
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <Header />
@@ -29,7 +24,6 @@ function HomePage() {
         <Features />
         <Pricing />
         <FAQ />
-        <Blog posts={posts} />
         <CTA />
       </main>
       <Footer />
@@ -41,8 +35,7 @@ function HomePage() {
 export const Route = createFileRoute('/')({
   loader: async () => {
     const locale = getLocale();
-    const posts = await getBlogPostsFn({ data: { locale, limit: 3 } });
-    return { locale, posts };
+    return { locale };
   },
   head: ({ loaderData }) => {
     const locale = loaderData?.locale ?? 'en';
