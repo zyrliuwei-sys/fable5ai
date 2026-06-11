@@ -7,6 +7,9 @@ import { ArrowRight, Sparkles, Wand2, ImagePlus, Layers } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { envConfigs } from "@/config";
+import { toast } from "sonner";
+import { apiPost } from "@/lib/api-client";
+import { getLocale } from "@/paraglide/runtime.js";
 
 const SHOWCASE_TABS = [
   { key: "product", icon: ImagePlus, label: "Product Design" },
@@ -16,6 +19,31 @@ const SHOWCASE_TABS = [
 
 export function Hero() {
   const [activeTab, setActiveTab] = useState("product");
+  const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubscribe() {
+    const trimmed = email.trim();
+    if (!trimmed) return;
+
+    setSubmitting(true);
+    try {
+      const result = await apiPost<{ subscribed: boolean; duplicate: boolean }>(
+        "/api/waitlist/subscribe",
+        { email: trimmed, locale: getLocale() }
+      );
+      if (result.duplicate) {
+        toast.success(m["landing.hero.waitlist.duplicate"]());
+      } else {
+        toast.success(m["landing.hero.waitlist.success"]());
+      }
+      setEmail("");
+    } catch (e: any) {
+      toast.error(e?.message || m["landing.hero.waitlist.error"]());
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <section className="relative isolate flex flex-col items-center justify-center overflow-hidden px-4 pt-28 pb-16 sm:pt-36 sm:pb-24">
@@ -46,26 +74,41 @@ export function Hero() {
           {m["landing.hero.subheadline"]()}
         </p>
 
-        {/* CTA buttons */}
-        <div className="flex items-center justify-center gap-4 mt-10">
+        {/* CTA: Email subscription form */}
+        <div className="flex flex-col items-center gap-4 mt-10">
+          <div className="flex w-full max-w-md items-center gap-2">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubscribe()}
+              placeholder={m["landing.hero.waitlist.placeholder"]()}
+              className="h-12 flex-1 rounded-full border border-white/10 bg-white/5 px-5 text-foreground placeholder:text-muted-foreground backdrop-blur-sm focus:border-purple-500/50 focus:outline-none focus:ring-2 focus:ring-purple-500/25"
+            />
+            <button
+              onClick={handleSubscribe}
+              disabled={submitting}
+              className={cn(
+                "h-12 rounded-full px-6 text-white font-medium transition-all flex items-center gap-2 shrink-0",
+                "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-lg shadow-purple-500/25",
+                submitting && "opacity-60 pointer-events-none"
+              )}
+            >
+              {submitting ? (
+                <span className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  {m["landing.hero.waitlist.button"]()}
+                  <ArrowRight className="size-4" />
+                </>
+              )}
+            </button>
+          </div>
           <Link
             href="/settings"
-            className={cn(
-              buttonVariants({ size: "lg" }),
-              "gap-2 rounded-full px-8 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white border-0 shadow-lg shadow-purple-500/25"
-            )}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
           >
             {m["landing.hero.cta"]()}
-            <ArrowRight className="size-4" />
-          </Link>
-          <Link
-            href="/pricing"
-            className={cn(
-              buttonVariants({ size: "lg", variant: "outline" }),
-              "rounded-full px-8 h-12 border-white/10 bg-white/5 hover:bg-white/10 text-foreground"
-            )}
-          >
-            {m["landing.hero.secondary"]()}
           </Link>
         </div>
 

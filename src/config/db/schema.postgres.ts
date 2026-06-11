@@ -600,6 +600,23 @@ export type NewTicketMessage = typeof ticketMessage.$inferInsert;
 // ─── Custom tables ───────────────────────────────────────────────────────────
 // Add your own tables below this line.
 
+// ─── Waitlist ──────────────────────────────────────────────────────────────
+
+export const waitlist = table(
+  'waitlist',
+  {
+    id: text('id').primaryKey(),
+    email: text('email').notNull().unique(),
+    status: text('status').notNull().default('active'),
+    locale: text('locale').default(''),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => [index('idx_waitlist_email').on(t.email)]
+);
+
+export type Waitlist = typeof waitlist.$inferSelect;
+export type NewWaitlist = typeof waitlist.$inferInsert;
+
 // ─── Invite Codes ────────────────────────────────────────────────────────────
 
 export const inviteCode = table(
