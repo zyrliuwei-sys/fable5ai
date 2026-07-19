@@ -65,3 +65,6 @@ package-lock.json
 
 # Runtime image uploads (no-storage local fallback)
 /public/uploads/
+
+# Local design/QA artifacts (screenshots, reference captures)
+/docs/

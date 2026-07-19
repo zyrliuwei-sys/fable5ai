@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 import { m } from "@/paraglide/messages.js";
-import { LayoutDashboard, User, CreditCard, Key, Receipt, Coins, Home, LifeBuoy } from "lucide-react";
+import { LayoutDashboard, User, CreditCard, Key, Receipt, Coins, Home, LifeBuoy, Bot } from "lucide-react";
 
 import { AppLayout } from "@/components/app-layout";
 import { SupportWidget } from "@/blocks/support-widget";
@@ -11,9 +11,10 @@ export const Route = createFileRoute('/settings')({
 });
 
 function SettingsLayout() {
-  
+
   const group = m["common.systems.settings"]();
   const navItems = [
+    { href: "/settings/agent", label: m["settings.nav.agent"](), icon: Bot, group },
     { href: "/settings", label: m["settings.nav.overview"](), icon: LayoutDashboard, group },
     { href: "/settings/billing", label: m["settings.nav.billing"](), icon: CreditCard, group },
     { href: "/settings/payments", label: m["settings.nav.payments"](), icon: Receipt, group },
