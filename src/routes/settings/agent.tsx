@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useRef, useState, useEffect } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { m } from '@/paraglide/messages.js';
-import { apiPost } from '@/lib/api-client';
+import { apiPost, apiGet, apiDelete } from '@/lib/api-client';
 import { useSession } from '@/core/auth/client';
 import { toast } from 'sonner';
 import { Sparkles, Send, Trash2, User } from 'lucide-react';
@@ -16,6 +16,12 @@ type Message = { role: Role; content: string };
 type AgentReply = {
   reply: string;
   configured: boolean;
+  chatId: string;
+};
+
+type AgentHistory = {
+  chatId: string | null;
+  messages: Message[];
 };
 
 const SUGGESTIONS = [
@@ -29,12 +35,33 @@ function AgentPage() {
   const { data: session } = useSession();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
+  const [chatId, setChatId] = useState('');
+  const [loaded, setLoaded] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Load the persisted conversation once on mount.
+  const historyQuery = useQuery({
+    queryKey: ['agent-chat'],
+    queryFn: () => apiGet<AgentHistory>('/api/agent/chat'),
+    enabled: !loaded,
+  });
+
+  useEffect(() => {
+    if (!loaded && historyQuery.data) {
+      setMessages(historyQuery.data.messages ?? []);
+      setChatId(historyQuery.data.chatId ?? '');
+      setLoaded(true);
+    }
+  }, [loaded, historyQuery.data]);
+
   const mutation = useMutation({
-    mutationFn: (vars: { messages: Message[] }) =>
-      apiPost<AgentReply>('/api/agent/chat', { messages: vars.messages }),
+    mutationFn: (vars: { messages: Message[]; chatId: string }) =>
+      apiPost<AgentReply>('/api/agent/chat', {
+        messages: vars.messages,
+        chatId: vars.chatId,
+      }),
     onSuccess: (data) => {
+      if (data.chatId) setChatId(data.chatId);
       if (!data.configured) {
         toast.error(m['settings.agent.not_configured']());
         return;
@@ -62,7 +89,19 @@ function AgentPage() {
     const next: Message[] = [...messages, { role: 'user', content }];
     setMessages(next);
     setInput('');
-    mutation.mutate({ messages: next });
+    mutation.mutate({ messages: next, chatId });
+  }
+
+  async function handleClear() {
+    if (chatId) {
+      try {
+        await apiDelete(`/api/agent/chat?chatId=${chatId}`);
+      } catch {
+        // Non-fatal: still reset the local view.
+      }
+    }
+    setMessages([]);
+    setChatId('');
   }
 
   const isEmpty = messages.length === 0;
@@ -81,7 +120,7 @@ function AgentPage() {
         </div>
         {!isEmpty && (
           <button
-            onClick={() => setMessages([])}
+            onClick={handleClear}
             className={cn(
               buttonVariants({ variant: 'outline', size: 'sm' }),
               'gap-2 border-white/10 bg-white/5 hover:bg-white/10'
