@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { Sparkles, Send, Trash2, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
+import { MarkdownContent } from '@/components/markdown-content';
 
 type Role = 'user' | 'assistant';
 type Message = { role: Role; content: string };
@@ -193,7 +194,7 @@ function MessageBubble({
       <div className="mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 text-white">
         <Sparkles className="size-3.5" />
       </div>
-      <div className="max-w-[80%] whitespace-pre-wrap rounded-2xl rounded-bl-sm border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-foreground">
+      <div className="max-w-[80%] rounded-2xl rounded-bl-sm border border-white/10 bg-white/[0.04] px-4 py-2.5 text-foreground">
         {thinking ? (
           <span className="inline-flex items-center gap-1.5 text-muted-foreground">
             <span className="flex gap-1">
@@ -203,7 +204,7 @@ function MessageBubble({
             </span>
           </span>
         ) : (
-          message.content
+          <MarkdownContent content={message.content} className="text-sm" />
         )}
       </div>
     </div>
