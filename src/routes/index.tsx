@@ -12,8 +12,9 @@ import { m } from "@/paraglide/messages.js";
 import { getLocale, locales, localizeUrl } from "@/paraglide/runtime.js";
 
 /**
- * Fable5AI landing page — AI-Powered Design Tool.
- * Inspired by lovart.ai's dark premium aesthetic.
+ * Fable5AI landing page — All-in-One AI Agent.
+ * Layout references the chat-console + capability-pills pattern of
+ * chatlyai.app/agent (OmniAgent), on the existing dark premium theme.
  */
 function HomePage() {
   return (
