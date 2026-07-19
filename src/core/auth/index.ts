@@ -6,6 +6,7 @@ import { getUuid } from '@/lib/hash';
 import { db } from '@/core/db';
 import { envConfigs, AUTH_SECRET_PLACEHOLDER } from '@/config';
 import { getAllConfigs } from '@/modules/config/service';
+import { grantForNewUser } from '@/modules/credits/service';
 import { ResendProvider } from '@/core/email/resend';
 import { VerifyEmail } from '@/core/email/templates/verify-email';
 import * as schema from '@/config/db/schema';
@@ -174,6 +175,25 @@ export function getAuth(configs?: Record<string, string>) {
     },
     advanced: {
       database: { generateId: () => getUuid() },
+    },
+    databaseHooks: {
+      user: {
+        create: {
+          after: async (user) => {
+            // Grant starter credits on signup (controlled by admin → Settings → Credit).
+            try {
+              const all = await getAllConfigs();
+              await grantForNewUser({
+                userId: user.id,
+                userEmail: user.email,
+                configs: all,
+              });
+            } catch (e) {
+              console.error('[auth] grant starter credits failed:', e);
+            }
+          },
+        },
+      },
     },
     emailAndPassword: {
       enabled: emailAndPasswordEnabled,
