@@ -58,7 +58,7 @@ export function Features() {
       <div className="mx-auto max-w-6xl">
         {/* Section header */}
         <div className="text-center mb-20">
-          <p className="text-sm font-medium text-purple-400 tracking-wide uppercase mb-4">
+          <p className="text-sm font-medium text-purple-600 tracking-wide uppercase mb-4">
             Features
           </p>
           <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">
@@ -74,10 +74,10 @@ export function Features() {
           {features.map(({ key, icon: Icon }, index) => (
             <div
               key={key}
-              className="group relative flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition-all hover:border-white/20 hover:bg-white/[0.05] hover:shadow-lg hover:shadow-purple-500/5"
+              className="group relative flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 transition-all hover:border-purple-200 hover:bg-purple-50/50 hover:shadow-lg hover:shadow-purple-500/5"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className="inline-flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 text-purple-300 transition-all group-hover:from-purple-500/30 group-hover:to-indigo-500/30">
+              <div className="inline-flex size-11 items-center justify-center rounded-xl bg-purple-50 text-purple-600 transition-all group-hover:bg-purple-100">
                 <Icon className="size-5" strokeWidth={1.75} />
               </div>
               <div className="space-y-2">
@@ -113,8 +113,8 @@ export function Features() {
                   className={cn(
                     "w-full text-left rounded-xl p-5 transition-all border",
                     activeShowcase === index
-                      ? "border-white/15 bg-white/[0.06] shadow-lg shadow-purple-500/5"
-                      : "border-transparent hover:bg-white/[0.03] hover:border-white/10"
+                      ? "border-purple-200 bg-purple-50 shadow-lg shadow-purple-500/5"
+                      : "border-transparent hover:bg-muted hover:border-border"
                   )}
                 >
                   <div className="flex items-center gap-3 mb-1">
@@ -122,8 +122,8 @@ export function Features() {
                       className={cn(
                         "inline-flex size-8 items-center justify-center rounded-lg transition-colors",
                         activeShowcase === index
-                          ? "bg-gradient-to-br from-purple-500/30 to-indigo-500/30 text-purple-200"
-                          : "bg-white/5 text-muted-foreground"
+                          ? "bg-purple-100 text-purple-700"
+                          : "bg-muted text-muted-foreground"
                       )}
                     >
                       <Icon className="size-4" />
@@ -140,7 +140,7 @@ export function Features() {
             </div>
 
             {/* Right: visual demo */}
-            <div className="relative aspect-[4/3] rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden">
+            <div className="relative aspect-[4/3] rounded-2xl border border-border bg-muted/50 overflow-hidden">
               <div
                 className={cn(
                   "absolute inset-0 bg-gradient-to-br transition-all duration-500",
@@ -152,13 +152,13 @@ export function Features() {
                   const Icon = SHOWCASE_ITEMS[activeShowcase].icon;
                   return (
                     <div className="flex flex-col items-center gap-4 text-center">
-                      <div className="inline-flex size-20 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] text-purple-200 backdrop-blur-sm">
+                      <div className="inline-flex size-20 items-center justify-center rounded-2xl border border-border bg-card text-purple-600 backdrop-blur-sm">
                         <Icon className="size-9" strokeWidth={1.5} />
                       </div>
                       <div className="space-y-2 w-full max-w-xs">
-                        <div className="h-2.5 rounded-full bg-white/15" />
-                        <div className="h-2.5 w-4/5 rounded-full bg-white/10" />
-                        <div className="h-2.5 w-3/5 rounded-full bg-white/10" />
+                        <div className="h-2.5 rounded-full bg-purple-200/60" />
+                        <div className="h-2.5 w-4/5 rounded-full bg-purple-100" />
+                        <div className="h-2.5 w-3/5 rounded-full bg-purple-100" />
                       </div>
                     </div>
                   );

@@ -24,7 +24,7 @@ import { getLocale, locales, localizeUrl } from "@/paraglide/runtime.js";
  */
 function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="site-light min-h-screen flex flex-col bg-background text-foreground">
       <Header />
       <main>
         <Hero />

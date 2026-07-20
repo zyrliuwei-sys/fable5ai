@@ -25,11 +25,13 @@ import { toast } from "sonner";
 import { MarkdownContent } from "@/components/markdown-content";
 
 /**
- * OmniAgent-style hero with a LIVE chat console.
+ * OmniAgent-style hero with a LIVE chat console — light variant.
  *
- * The prompt box calls the Kie.ai chat-completions API (model `kie_chat_model`,
- * default `gemini-3-flash-openai`) via the public /api/hero/ai endpoint and
- * renders the real reply. The CTA buttons still route into the product.
+ * Rendered inside the `.site-light` scope on the landing page, so it uses light
+ * tokens (bg-card, border-border, bg-muted) with Fable5AI's purple kept as the
+ * accent on CTAs, message bubbles, and icons. The prompt box calls the Kie.ai
+ * chat-completions API via the public /api/hero/ai endpoint and renders the real
+ * reply. The CTA buttons route into the product.
  */
 const CAPABILITIES: { icon: LucideIcon; key: string; badge?: boolean }[] = [
   { icon: MessageSquare, key: "landing.chips.auth" },
@@ -105,29 +107,29 @@ export function Hero() {
 
   return (
     <section className="relative isolate flex flex-col items-center justify-center overflow-hidden px-4 pt-28 pb-16 sm:pt-36 sm:pb-24">
-      {/* Animated gradient orbs */}
+      {/* Animated gradient orbs — soft purple haze on the white surface */}
       <div
         className="pointer-events-none absolute inset-0 overflow-hidden"
         aria-hidden="true"
       >
-        <div className="animate-drift-a absolute -top-1/4 left-1/4 h-[600px] w-[600px] rounded-full bg-purple-600/20 blur-[120px]" />
-        <div className="animate-drift-b absolute -bottom-1/4 right-1/4 h-[500px] w-[500px] rounded-full bg-indigo-500/15 blur-[100px]" />
-        <div className="animate-drift-c absolute top-1/2 left-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-400/10 blur-[80px]" />
+        <div className="animate-drift-a absolute -top-1/4 left-1/4 h-[600px] w-[600px] rounded-full bg-purple-300/30 blur-[120px]" />
+        <div className="animate-drift-b absolute -bottom-1/4 right-1/4 h-[500px] w-[500px] rounded-full bg-indigo-300/25 blur-[100px]" />
+        <div className="animate-drift-c absolute top-1/2 left-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-200/30 blur-[80px]" />
       </div>
 
       <div className="relative z-10 max-w-4xl w-full">
         {/* Top badge */}
         <div className="flex justify-center mb-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm backdrop-blur-sm">
-            <Sparkles className="size-4 text-purple-400" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-purple-50 px-4 py-1.5 text-sm">
+            <Sparkles className="size-4 text-purple-600" />
             <span className="text-muted-foreground">{envConfigs.app_name}</span>
-            <span className="text-purple-400 font-medium">AI Agent</span>
+            <span className="text-purple-600 font-medium">AI Agent</span>
           </div>
         </div>
 
         {/* Headline */}
         <h1 className="text-center font-sans text-4xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight">
-          <span className="bg-gradient-to-br from-foreground via-foreground to-purple-300 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-br from-foreground via-foreground to-purple-600 bg-clip-text text-transparent">
             {m["landing.hero.headline"]()}
           </span>
         </h1>
@@ -139,16 +141,16 @@ export function Hero() {
 
         {/* Live chat console */}
         <div className="mt-12 mx-auto max-w-2xl">
-          <div className="relative rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm overflow-hidden shadow-2xl shadow-purple-500/5">
+          <div className="relative rounded-2xl border border-border bg-card overflow-hidden shadow-2xl shadow-purple-500/5">
             {/* Window chrome */}
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-white/[0.02]">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/50">
               <div className="flex gap-1.5">
                 <div className="size-3 rounded-full bg-red-500/60" />
                 <div className="size-3 rounded-full bg-yellow-500/60" />
                 <div className="size-3 rounded-full bg-green-500/60" />
               </div>
               <div className="flex-1 flex justify-center">
-                <div className="inline-flex items-center gap-1.5 rounded-md bg-white/5 px-3 py-1 text-xs text-muted-foreground">
+                <div className="inline-flex items-center gap-1.5 rounded-md bg-background px-3 py-1 text-xs text-muted-foreground">
                   <span className="relative flex size-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                     <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
@@ -178,12 +180,12 @@ export function Hero() {
               {CAPABILITIES.map(({ icon: Icon, key, badge }) => (
                 <span
                   key={key}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs text-muted-foreground"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-2.5 py-1 text-xs text-muted-foreground"
                 >
-                  <Icon className="size-3 text-purple-300" />
+                  <Icon className="size-3 text-purple-600" />
                   {tDynamic(key)}
                   {badge && (
-                    <span className="rounded-full bg-purple-500/20 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-purple-300">
+                    <span className="rounded-full bg-purple-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-purple-700">
                       New
                     </span>
                   )}
@@ -192,7 +194,7 @@ export function Hero() {
             </div>
 
             {/* Input bar (functional) */}
-            <div className="border-t border-white/10 p-3">
+            <div className="border-t border-border p-3">
               <div className="flex items-center gap-2">
                 <input
                   type="text"
@@ -202,7 +204,7 @@ export function Hero() {
                   onKeyDown={onKeyDown}
                   disabled={loading}
                   placeholder={m["landing.hero.waitlist.placeholder"]()}
-                  className="h-11 flex-1 rounded-full border border-white/10 bg-white/5 px-5 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-purple-500/50 focus:outline-none focus:ring-2 focus:ring-purple-500/25 disabled:opacity-60"
+                  className="h-11 flex-1 rounded-full border border-border bg-muted px-5 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-purple-500/50 focus:outline-none focus:ring-2 focus:ring-purple-500/25 disabled:opacity-60"
                 />
                 <button
                   onClick={send}
@@ -238,7 +240,7 @@ export function Hero() {
               href="/#features"
               className={cn(
                 buttonVariants({ size: "lg", variant: "outline" }),
-                "rounded-full px-7 h-12 border-white/15 bg-white/5 hover:bg-white/10"
+                "rounded-full px-7 h-12 border-border bg-card hover:bg-muted"
               )}
             >
               {m["landing.hero.secondary"]()}
@@ -271,13 +273,13 @@ function MessageBubble({ message }: { message: ChatMessage }) {
       <div className="mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 text-white">
         <Sparkles className="size-3.5" />
       </div>
-      <div className="max-w-[80%] rounded-2xl rounded-bl-sm border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-foreground">
+      <div className="max-w-[80%] rounded-2xl rounded-bl-sm border border-border bg-muted px-4 py-2.5 text-sm text-foreground">
         {thinking ? (
           <span className="inline-flex items-center gap-2 text-muted-foreground">
             <span className="flex gap-1">
-              <span className="size-1.5 animate-bounce rounded-full bg-purple-300 [animation-delay:-0.3s]" />
-              <span className="size-1.5 animate-bounce rounded-full bg-purple-300 [animation-delay:-0.15s]" />
-              <span className="size-1.5 animate-bounce rounded-full bg-purple-300" />
+              <span className="size-1.5 animate-bounce rounded-full bg-purple-400 [animation-delay:-0.3s]" />
+              <span className="size-1.5 animate-bounce rounded-full bg-purple-400 [animation-delay:-0.15s]" />
+              <span className="size-1.5 animate-bounce rounded-full bg-purple-400" />
             </span>
             <span className="text-xs">{m["landing.hero.ai.thinking"]()}</span>
           </span>

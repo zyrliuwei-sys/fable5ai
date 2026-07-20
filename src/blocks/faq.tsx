@@ -14,7 +14,7 @@ export function FAQ() {
     <section id="faq" className="px-4 py-24 sm:py-32">
       <div className="mx-auto max-w-3xl">
         <div className="text-center mb-16">
-          <p className="text-sm font-medium text-purple-400 tracking-wide uppercase mb-4">
+          <p className="text-sm font-medium text-purple-600 tracking-wide uppercase mb-4">
             FAQ
           </p>
           <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">
@@ -26,8 +26,8 @@ export function FAQ() {
         </div>
         <Accordion className="w-full">
           {FAQ_KEYS.map((key) => (
-            <AccordionItem key={key} value={key} className="border-white/10">
-              <AccordionTrigger className="cursor-pointer py-6 text-left text-base font-medium hover:no-underline hover:text-purple-300">
+            <AccordionItem key={key} value={key} className="border-border">
+              <AccordionTrigger className="cursor-pointer py-6 text-left text-base font-medium hover:no-underline hover:text-purple-600">
                 {tDynamic(`landing.faq.${key}.question`)}
               </AccordionTrigger>
               <AccordionContent className="pb-6 text-muted-foreground leading-relaxed">
