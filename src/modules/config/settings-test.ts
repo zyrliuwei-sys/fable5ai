@@ -21,7 +21,6 @@ import { ResendProvider } from '@/core/email/resend';
 import { R2Provider } from '@/core/storage/r2';
 import { ReplicateProvider } from '@/core/ai/replicate';
 import { FalProvider } from '@/core/ai/fal';
-import { KieProvider } from '@/core/ai/kie';
 import { AIMediaType } from '@/core/ai/types';
 import { getUniSeq } from '@/lib/hash';
 import { envConfigs } from '@/config';
@@ -418,17 +417,39 @@ async function testKie(inputs: Record<string, string>, configs: Record<string, s
   const missing = need(configs, ['kie_api_key']);
   if (missing) return { success: false, message: missing };
 
-  const provider = new KieProvider({ apiKey: configs.kie_api_key });
-  const result = await provider.generate({
-    params: {
-      mediaType: AIMediaType.IMAGE,
-      model: inputs.model,
-      prompt: inputs.prompt,
+  // Kie's configured model is a CHAT model (gemini-3-flash), so test via the
+  // OpenAI-compatible chat-completions endpoint (model in the URL path), not
+  // the async image/video task API. Mirrors /api/hero/ai.
+  const apiKey = configs.kie_api_key;
+  const model = inputs.model || configs.kie_chat_model || 'gemini-3-flash';
+  const prompt = inputs.prompt || 'Reply with a short greeting.';
+
+  const resp = await fetch(`https://api.kie.ai/${model}/v1/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
     },
+    body: JSON.stringify({
+      stream: false,
+      include_thoughts: false,
+      messages: [
+        { role: 'system', content: 'You are Fable5. Reply briefly.' },
+        { role: 'user', content: prompt },
+      ],
+    }),
   });
+
+  const data: any = await resp.json().catch(() => ({}));
+  const reply: string = data?.choices?.[0]?.message?.content ?? '';
+  if (!reply) {
+    const msg = data?.error?.message || data?.msg || `Kie request failed (HTTP ${resp.status})`;
+    return { success: false, message: `Kie: ${msg}` };
+  }
+
   return {
     success: true,
     message: 'Kie accepted the request',
-    details: { 'Task ID': result.taskId, Status: result.taskStatus },
+    details: { Model: data?.model || model, Reply: reply.slice(0, 200) },
   };
 }
