@@ -6,6 +6,7 @@ import { envConfigs } from "@/config";
 import { AgentNavbar } from "@/components/agent/agent-navbar";
 import { AgentSidebar } from "@/components/agent/agent-sidebar";
 import { AgentConsole } from "@/components/agent/agent-console";
+import { AgentSeo, AGENT_FAQ_KEYS } from "@/components/agent/agent-seo";
 import { DEFAULT_CAPABILITY, type CapabilityId } from "@/components/agent/capabilities";
 
 /**
@@ -23,15 +24,20 @@ function AgentPage() {
   const [newChatNonce, setNewChatNonce] = useState(0);
 
   return (
-    <div className="agent-app flex h-dvh flex-col bg-background text-foreground">
-      <AgentNavbar onOpenSidebar={() => setSidebarOpen(true)} />
-      <main className="flex-1 overflow-hidden">
-        <AgentConsole
-          mode={mode}
-          onSelectMode={setMode}
-          newChatNonce={newChatNonce}
-        />
-      </main>
+    <div className="agent-app flex min-h-dvh flex-col bg-background text-foreground">
+      {/* Console fills the first viewport as the hero; SEO content scrolls in
+          below it so the chat UX is unchanged while the page carries real
+          crawlable, server-rendered text. */}
+      <div className="flex h-dvh flex-col">
+        <AgentNavbar onOpenSidebar={() => setSidebarOpen(true)} />
+        <main className="flex-1 overflow-hidden">
+          <AgentConsole
+            mode={mode}
+            onSelectMode={setMode}
+            newChatNonce={newChatNonce}
+          />
+        </main>
+      </div>
       <AgentSidebar
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -39,6 +45,7 @@ function AgentPage() {
         onSelectMode={setMode}
         onNewChat={() => setNewChatNonce((n) => n + 1)}
       />
+      <AgentSeo />
     </div>
   );
 }
@@ -60,6 +67,59 @@ export const Route = createFileRoute("/agent")({
     const urlFor = (l: string) =>
       localizeUrl(`${appUrl}/agent`, { locale: l as any }).href;
 
+    // JSON-LD structured data — Organization + WebSite + SoftwareApplication
+    // + FAQPage (mirrors the FAQ rendered in <AgentSeo/> via AGENT_FAQ_KEYS).
+    const faqEntities = AGENT_FAQ_KEYS.map((k) => ({
+      "@type": "Question",
+      name: m[`agent.faq.${k}.q`]({}, { locale: loc }),
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: m[`agent.faq.${k}.a`]({}, { locale: loc }),
+      },
+    }));
+
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": `${appUrl}/#organization`,
+          name: "Fable5AI",
+          alternateName: "Fable5",
+          url: appUrl,
+          logo: `${appUrl}/logo.svg`,
+        },
+        {
+          "@type": "WebSite",
+          "@id": `${appUrl}/#website`,
+          url: appUrl,
+          name: "Fable5AI",
+          alternateName: "Fable5",
+          description,
+          inLanguage: locale,
+          publisher: { "@id": `${appUrl}/#organization` },
+        },
+        {
+          "@type": "SoftwareApplication",
+          name: "Fable5AI",
+          alternateName: "Fable5",
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web",
+          url: canonicalUrl,
+          description,
+          offers: {
+            "@type": "Offer",
+            price: "0",
+            priceCurrency: "USD",
+          },
+        },
+        {
+          "@type": "FAQPage",
+          mainEntity: faqEntities,
+        },
+      ],
+    };
+
     return {
       meta: [
         { title },
@@ -70,10 +130,14 @@ export const Route = createFileRoute("/agent")({
         { property: "og:description", content: description },
         { property: "og:url", content: canonicalUrl },
         { property: "og:image", content: ogImage },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { property: "og:locale", content: locale.replace("-", "_") },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: description },
         { name: "twitter:image", content: ogImage },
+        { "script:ld+json": jsonLd },
       ],
       links: [
         { rel: "canonical", href: canonicalUrl },

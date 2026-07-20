@@ -103,6 +103,13 @@ export const testSpecs: Record<string, TestSpec> = {
       { name: 'prompt', label: 'Prompt', type: 'textarea', defaultValue: 'a small red cube, product photography', required: true },
     ],
   },
+  kie: {
+    group: 'kie',
+    fields: [
+      { name: 'model', label: 'Model', type: 'text', defaultValue: 'flux-1.1-pro', required: true },
+      { name: 'prompt', label: 'Prompt', type: 'textarea', defaultValue: 'a small red cube, product photography', required: true },
+    ],
+  },
 };
 
 export function getTestSpec(group: string): TestSpec | undefined {

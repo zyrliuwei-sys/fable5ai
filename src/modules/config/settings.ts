@@ -73,6 +73,7 @@ export function getSettingGroups(): SettingGroup[] {
     { name: 'anthropic', title: 'Anthropic', description: 'Anthropic Claude API', tab: 'ai' },
     { name: 'replicate', title: 'Replicate', description: 'Replicate AI API', tab: 'ai' },
     { name: 'fal', title: 'Fal', description: 'Fal AI API', tab: 'ai' },
+    { name: 'kie', title: 'Kie', description: 'Kie.ai API (image, video, music)', tab: 'ai' },
 
     // Analytics
     { name: 'google_analytics', title: 'Google Analytics', description: 'Inject gtag.js with the configured Measurement ID', tab: 'analytics' },
@@ -206,6 +207,10 @@ export function getSettings(): Setting[] {
 
     // ─── AI / Fal ────────────────────────────────────────────────────
     { name: 'fal_api_key', title: 'API Key', type: 'password', placeholder: 'xxx', group: 'fal', tab: 'ai' },
+
+    // ─── AI / Kie ────────────────────────────────────────────────────
+    { name: 'kie_api_key', title: 'API Key', type: 'password', placeholder: 'xxx', tip: 'Kie.ai Bearer token. Create one at https://kie.ai → API Keys', group: 'kie', tab: 'ai' },
+    { name: 'kie_chat_model', title: 'Chat Model', type: 'text', placeholder: 'gemini-3-flash', defaultValue: 'gemini-3-flash', tip: 'kie.ai chat model id (goes in the request URL path). Powers the live hero demo.', group: 'kie', tab: 'ai' },
 
     // ─── Analytics / Google Analytics ────────────────────────────────
     { name: 'google_analytics_id', title: 'Measurement ID', type: 'text', placeholder: 'G-XXXXXXXXXX', group: 'google_analytics', tab: 'analytics' },

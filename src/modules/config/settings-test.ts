@@ -21,6 +21,7 @@ import { ResendProvider } from '@/core/email/resend';
 import { R2Provider } from '@/core/storage/r2';
 import { ReplicateProvider } from '@/core/ai/replicate';
 import { FalProvider } from '@/core/ai/fal';
+import { KieProvider } from '@/core/ai/kie';
 import { AIMediaType } from '@/core/ai/types';
 import { getUniSeq } from '@/lib/hash';
 import { envConfigs } from '@/config';
@@ -58,6 +59,8 @@ export async function runTest(
         return await testReplicate(inputs, configs);
       case 'fal':
         return await testFal(inputs, configs);
+      case 'kie':
+        return await testKie(inputs, configs);
       default:
         return { success: false, message: `No test available for "${group}"` };
     }
@@ -407,6 +410,25 @@ async function testFal(inputs: Record<string, string>, configs: Record<string, s
   return {
     success: true,
     message: 'Fal accepted the request',
+    details: { 'Task ID': result.taskId, Status: result.taskStatus },
+  };
+}
+
+async function testKie(inputs: Record<string, string>, configs: Record<string, string>): Promise<TestResult> {
+  const missing = need(configs, ['kie_api_key']);
+  if (missing) return { success: false, message: missing };
+
+  const provider = new KieProvider({ apiKey: configs.kie_api_key });
+  const result = await provider.generate({
+    params: {
+      mediaType: AIMediaType.IMAGE,
+      model: inputs.model,
+      prompt: inputs.prompt,
+    },
+  });
+  return {
+    success: true,
+    message: 'Kie accepted the request',
     details: { 'Task ID': result.taskId, Status: result.taskStatus },
   };
 }

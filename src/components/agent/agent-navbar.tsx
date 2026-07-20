@@ -33,6 +33,8 @@ export function AgentNavbar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
           <img
             src={envConfigs.app_logo || "/logo.svg"}
             alt={envConfigs.app_name}
+            width={24}
+            height={24}
             className="size-6 rounded-md"
           />
           <span className="text-[15px] font-medium tracking-tight text-foreground">

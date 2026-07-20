@@ -243,6 +243,8 @@ function MessageBubble({ message }: { message: Message }) {
         <img
           src={envConfigs.app_logo || "/logo.svg"}
           alt=""
+          width={28}
+          height={28}
           className="size-full object-cover"
         />
       </div>

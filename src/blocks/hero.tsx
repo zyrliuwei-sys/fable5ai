@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { Link, useRouter } from "@/core/i18n/navigation";
 import { m } from "@/paraglide/messages.js";
 import { tDynamic } from "@/core/i18n/dynamic";
@@ -19,11 +20,16 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { envConfigs } from "@/config";
+import { apiPost } from "@/lib/api-client";
+import { toast } from "sonner";
+import { MarkdownContent } from "@/components/markdown-content";
 
 /**
- * OmniAgent-style hero: capability pills + a chat console mockup.
- * The input is decorative — submitting routes to sign-up so the user can
- * actually start a conversation with the agent in the dashboard.
+ * OmniAgent-style hero with a LIVE chat console.
+ *
+ * The prompt box calls the Kie.ai chat-completions API (model `kie_chat_model`,
+ * default `gemini-3-flash-openai`) via the public /api/hero/ai endpoint and
+ * renders the real reply. The CTA buttons still route into the product.
  */
 const CAPABILITIES: { icon: LucideIcon; key: string; badge?: boolean }[] = [
   { icon: MessageSquare, key: "landing.chips.auth" },
@@ -35,12 +41,66 @@ const CAPABILITIES: { icon: LucideIcon; key: string; badge?: boolean }[] = [
   { icon: Search, key: "landing.chips.cms" },
 ];
 
+type Role = "user" | "assistant";
+type ChatMessage = { role: Role; content: string };
+
+const SEED_MESSAGES: ChatMessage[] = [
+  {
+    role: "assistant",
+    content:
+      "Hi! I'm **Fable5** — your all-in-one AI agent. Ask me to write, design, research, or create right here. ✨",
+  },
+];
+
 export function Hero() {
   const router = useRouter();
+  const [messages, setMessages] = useState<ChatMessage[]>(SEED_MESSAGES);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  function startChatting() {
-    // The hero console is a preview — the real agent lives in the dashboard.
-    router.push("/sign-up");
+  // Keep the latest message in view.
+  useEffect(() => {
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages, loading]);
+
+  async function send() {
+    const prompt = input.trim();
+    if (!prompt || loading) return;
+
+    setMessages((prev) => [...prev, { role: "user", content: prompt }]);
+    setInput("");
+    setLoading(true);
+
+    try {
+      const data = await apiPost<{ reply: string }>("/api/hero/ai", { prompt });
+      const reply = data.reply?.trim();
+      if (!reply) throw new Error(m["landing.hero.ai.error"]());
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: reply },
+      ]);
+    } catch (e: any) {
+      toast.error(e?.message || m["landing.hero.ai.error"]());
+      // Drop the unanswered user turn so the console stays clean.
+      setMessages((prev) => {
+        const next = [...prev];
+        if (next[next.length - 1]?.role === "user") next.pop();
+        return next;
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send();
+    }
   }
 
   return (
@@ -77,7 +137,7 @@ export function Hero() {
           {m["landing.hero.subheadline"]()}
         </p>
 
-        {/* Chat console mockup */}
+        {/* Live chat console */}
         <div className="mt-12 mx-auto max-w-2xl">
           <div className="relative rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm overflow-hidden shadow-2xl shadow-purple-500/5">
             {/* Window chrome */}
@@ -89,49 +149,28 @@ export function Hero() {
               </div>
               <div className="flex-1 flex justify-center">
                 <div className="inline-flex items-center gap-1.5 rounded-md bg-white/5 px-3 py-1 text-xs text-muted-foreground">
-                  <Sparkles className="size-3 text-purple-400" />
-                  {envConfigs.app_name}
+                  <span className="relative flex size-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
+                  </span>
+                  {m["landing.hero.ai.hint"]()}
                 </div>
               </div>
             </div>
 
-            {/* Faux conversation */}
-            <div className="space-y-4 px-5 py-6">
-              {/* user */}
-              <div className="flex justify-end">
-                <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-gradient-to-br from-purple-600 to-indigo-600 px-4 py-2.5 text-sm text-white shadow-lg shadow-purple-500/20">
-                  Design a hero banner for my specialty coffee brand — warm,
-                  minimal, morning light.
-                </div>
-              </div>
-              {/* agent */}
-              <div className="flex justify-start gap-2.5">
-                <div className="mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 text-white">
-                  <Sparkles className="size-3.5" />
-                </div>
-                <div className="max-w-[80%] space-y-2.5">
-                  <p className="rounded-2xl rounded-bl-sm border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-foreground">
-                    On it — here are 4 directions. Want me to turn the top-left
-                    one into a social set and a 6s video?
-                  </p>
-                  <div className="grid grid-cols-4 gap-2">
-                    {[
-                      "from-amber-500/30 to-orange-500/30",
-                      "from-purple-500/30 to-pink-500/30",
-                      "from-emerald-500/30 to-teal-500/30",
-                      "from-indigo-500/30 to-blue-500/30",
-                    ].map((g, i) => (
-                      <div
-                        key={i}
-                        className={cn(
-                          "aspect-square rounded-lg border border-white/10 bg-gradient-to-br",
-                          g
-                        )}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
+            {/* Conversation (live) */}
+            <div
+              ref={scrollRef}
+              className="max-h-[320px] min-h-[200px] space-y-4 overflow-y-auto px-5 py-6"
+            >
+              {messages.map((msg, i) => (
+                <MessageBubble key={i} message={msg} />
+              ))}
+              {loading && (
+                <MessageBubble
+                  message={{ role: "assistant", content: "__thinking__" }}
+                />
+              )}
             </div>
 
             {/* Capability pills */}
@@ -152,22 +191,30 @@ export function Hero() {
               ))}
             </div>
 
-            {/* Input bar (decorative) */}
+            {/* Input bar (functional) */}
             <div className="border-t border-white/10 p-3">
               <div className="flex items-center gap-2">
                 <input
                   type="text"
                   aria-label="prompt"
-                  onKeyDown={(e) => e.key === "Enter" && startChatting()}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={onKeyDown}
+                  disabled={loading}
                   placeholder={m["landing.hero.waitlist.placeholder"]()}
-                  className="h-11 flex-1 rounded-full border border-white/10 bg-white/5 px-5 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-purple-500/50 focus:outline-none focus:ring-2 focus:ring-purple-500/25"
+                  className="h-11 flex-1 rounded-full border border-white/10 bg-white/5 px-5 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-purple-500/50 focus:outline-none focus:ring-2 focus:ring-purple-500/25 disabled:opacity-60"
                 />
                 <button
-                  onClick={startChatting}
+                  onClick={send}
+                  disabled={loading || !input.trim()}
                   aria-label={m["landing.hero.waitlist.button"]()}
-                  className="flex size-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/25 transition-all hover:from-purple-500 hover:to-indigo-500"
+                  className="flex size-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/25 transition-all hover:from-purple-500 hover:to-indigo-500 disabled:opacity-50 disabled:pointer-events-none"
                 >
-                  <Send className="size-4" />
+                  {loading ? (
+                    <span className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                  ) : (
+                    <Send className="size-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -178,7 +225,7 @@ export function Hero() {
         <div className="mt-8 flex flex-col items-center gap-3">
           <div className="flex flex-wrap items-center justify-center gap-3">
             <button
-              onClick={startChatting}
+              onClick={() => router.push("/sign-up")}
               className={cn(
                 buttonVariants({ size: "lg" }),
                 "gap-2 rounded-full px-7 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white border-0 shadow-lg shadow-purple-500/25"
@@ -203,5 +250,41 @@ export function Hero() {
         </div>
       </div>
     </section>
+  );
+}
+
+function MessageBubble({ message }: { message: ChatMessage }) {
+  const thinking = message.content === "__thinking__";
+
+  if (message.role === "user") {
+    return (
+      <div className="flex justify-end">
+        <div className="max-w-[80%] whitespace-pre-wrap rounded-2xl rounded-br-sm bg-gradient-to-br from-purple-600 to-indigo-600 px-4 py-2.5 text-sm text-white shadow-lg shadow-purple-500/20">
+          {message.content}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex justify-start gap-2.5">
+      <div className="mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 text-white">
+        <Sparkles className="size-3.5" />
+      </div>
+      <div className="max-w-[80%] rounded-2xl rounded-bl-sm border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-foreground">
+        {thinking ? (
+          <span className="inline-flex items-center gap-2 text-muted-foreground">
+            <span className="flex gap-1">
+              <span className="size-1.5 animate-bounce rounded-full bg-purple-300 [animation-delay:-0.3s]" />
+              <span className="size-1.5 animate-bounce rounded-full bg-purple-300 [animation-delay:-0.15s]" />
+              <span className="size-1.5 animate-bounce rounded-full bg-purple-300" />
+            </span>
+            <span className="text-xs">{m["landing.hero.ai.thinking"]()}</span>
+          </span>
+        ) : (
+          <MarkdownContent content={message.content} className="text-sm" />
+        )}
+      </div>
+    </div>
   );
 }
