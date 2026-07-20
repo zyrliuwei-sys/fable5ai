@@ -21,6 +21,9 @@ import { enforceMinIntervalRateLimit } from '@/lib/rate-limit';
 const KIE_BASE_URL = 'https://api.kie.ai';
 const DEFAULT_MODEL = 'gemini-3-5-flash-openai';
 const MAX_PROMPT = 1000;
+// Caller-supplied model ids must be plain identifiers — `model` is placed in
+// the kie request URL path, so this blocks `/`, `..`, `?`, `#`, spaces, etc.
+const SAFE_MODEL_RE = /^[A-Za-z0-9._-]+$/;
 
 const SYSTEM_PROMPT =
   "You are Fable5, a friendly all-in-one AI assistant giving a live demo on a marketing landing page. Keep replies short (2-4 sentences), energetic, and practical. Offer to go deeper (open the full agent) when useful. Reply in the user's language. Light Markdown only.";
@@ -61,9 +64,14 @@ async function POST({ request }: { request: Request }) {
       return respErr('Kie API key not configured. Add it in Admin → Settings → AI → Kie.');
     }
     // Caller may override the model (e.g. to test alternatives); else use config.
+    // `model` is interpolated into the kie request URL path, so only accept a
+    // plain model id — reject anything with `/`, `..`, `?`, `#`, or spaces to
+    // prevent path manipulation / cost abuse on our kie key.
+    const reqModel =
+      typeof body?.model === 'string' ? body.model.trim() : '';
     const model =
-      typeof body?.model === 'string' && body.model.trim()
-        ? body.model.trim()
+      reqModel && SAFE_MODEL_RE.test(reqModel)
+        ? reqModel
         : (await getConfig('kie_chat_model')) || DEFAULT_MODEL;
 
     const turns =
