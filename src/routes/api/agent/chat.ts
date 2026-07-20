@@ -30,6 +30,35 @@ type ClientMessage = {
 const SYSTEM_PROMPT =
   'You are Fable5AI, an all-in-one AI agent. You help people write, research, design, and create — including documents, slides, images, videos, and music. Be concise, friendly, and practical. When a request needs another modality you cannot produce as text, briefly explain the plan and guide the user. Reply in the user\'s language. Use Markdown for formatting.';
 
+/**
+ * Per-capability mode instructions appended to the system prompt. Mirrors the
+ * `prompt` field in src/components/agent/capabilities.ts (kept server-side so
+ * the client only sends the mode id, never the prompt text). The agent always
+ * replies as text via the OpenAI-compatible endpoint — for non-text
+ * modalities these ask the model to describe/structure the artefact.
+ */
+const MODE_PROMPTS: Record<string, string> = {
+  chat: '',
+  image:
+    'The user wants an image. You respond in text, so describe the image in vivid, specific detail and give a ready-to-use prompt for an image generator.',
+  video:
+    'The user wants a video. Produce a concise storyboard / shot list in Markdown and include a generation prompt.',
+  slides:
+    'The user wants a slide deck. Output a structured deck in Markdown — one `## Slide N: Title` heading per slide, followed by concise bullet points.',
+  docs:
+    'The user wants a document. Produce a well-structured Markdown document with clear headings, sections, and formatting.',
+  graphs:
+    'The user wants a chart or graph. Provide a Mermaid code block for the chart and explain the underlying data.',
+  music:
+    'The user wants music. Describe the composition (tempo, key, instruments, sections) and provide a generation prompt.',
+  research:
+    'The user wants deep research. Provide a thorough research brief with clear sections, key findings, and reasoned analysis.',
+  resume:
+    'The user wants a resume. Produce a tailored, professional resume in Markdown based on their experience and the provided job description.',
+  motion:
+    'The user wants motion design. Describe the animation / motion sequence step by step, including timing, easing, and layers.',
+};
+
 const DEFAULT_MODEL = 'gpt-4o-mini';
 const DEFAULT_BASE_URL = 'https://api.openai.com/v1';
 const PROVIDER = 'openai';
@@ -144,6 +173,26 @@ async function POST({ request }: { request: Request }) {
       );
     }
 
+    // Compose the system prompt from the selected capability mode + behaviour
+    // toggles sent by the /agent console. `mode` defaults to autothink (base).
+    const mode =
+      typeof body?.mode === 'string' && MODE_PROMPTS.hasOwnProperty(body.mode)
+        ? body.mode
+        : 'autothink';
+    const wantThink = body?.think !== false; // default: think on
+    const autonomy = body?.autonomy === 'ask' ? 'ask' : 'auto';
+
+    const sysPrompt = [
+      SYSTEM_PROMPT,
+      MODE_PROMPTS[mode] ?? '',
+      wantThink ? '' : 'Answer directly and concisely without step-by-step reasoning.',
+      autonomy === 'ask'
+        ? 'Before creating or editing any artefact, briefly confirm your plan with the user first.'
+        : '',
+    ]
+      .filter(Boolean)
+      .join('\n\n');
+
     const resp = await fetch(`${baseUrl.replace(/\/$/, '')}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -152,7 +201,7 @@ async function POST({ request }: { request: Request }) {
       },
       body: JSON.stringify({
         model,
-        messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...trimmed],
+        messages: [{ role: 'system', content: sysPrompt }, ...trimmed],
       }),
     });
 

@@ -163,3 +163,53 @@
     .animate-gradient-x { animation: none !important; }
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Agent app — scoped LIGHT theme for the public /agent route.
+   Cloned from chatlyai.app/agent (OmniAgent). Defined under .agent-app so it
+   overrides the dark tokens ONLY inside the agent shell — the marketing site,
+   dashboard, and admin keep the existing dark-first theme untouched.
+   Palette is near-monochrome (white bg, #0F0F0F text, #EDEDED borders).      */
+.agent-app {
+  --background: #ffffff;
+  --foreground: #0f0f0f;
+  --card: #ffffff;
+  --card-foreground: #0f0f0f;
+  --popover: #ffffff;
+  --popover-foreground: #0f0f0f;
+  --primary: #0f0f0f;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #0f0f0f;
+  --muted: #f5f5f5;
+  --muted-foreground: #6b6b6b;
+  --accent: #ededed;
+  --accent-foreground: #0f0f0f;
+  --destructive: #e5484d;
+  --destructive-foreground: #ffffff;
+  --border: #ededed;
+  --input: #ededed;
+  --ring: #0f0f0f;
+  --radius: 0.75rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f0f0f;
+  --sidebar-primary: #0f0f0f;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f5f5f5;
+  --sidebar-accent-foreground: #0f0f0f;
+  --sidebar-border: #ededed;
+  --sidebar-ring: #0f0f0f;
+  /* chatlyai layout metrics */
+  --navbar-height: 3rem;
+  --navbar-adjusted-height: calc(100dvh - 3rem);
+  --sidebar-collapsed-width: 3rem;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Composer rotating-placeholder caret blink (chatlyai uses a typed caret) */
+@keyframes agent-caret-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+.agent-caret { animation: agent-caret-blink 1s step-end infinite; }
