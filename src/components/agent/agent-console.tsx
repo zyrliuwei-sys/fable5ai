@@ -5,7 +5,6 @@ import { m } from "@/paraglide/messages.js";
 import { tDynamic } from "@/core/i18n/dynamic";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { useSession } from "@/core/auth/client";
-import { useRouter } from "@/core/i18n/navigation";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { envConfigs } from "@/config";
@@ -34,7 +33,6 @@ export function AgentConsole({
   newChatNonce: number;
 }) {
   const { data: session } = useSession();
-  const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [chatId, setChatId] = useState("");
@@ -70,20 +68,30 @@ export function AgentConsole({
   }, [newChatNonce]);
 
   const mutation = useMutation({
-    mutationFn: (vars: {
+    mutationFn: async (vars: {
       messages: Message[];
       chatId: string;
       mode: CapabilityId;
       think: boolean;
       autonomy: Autonomy;
-    }) =>
-      apiPost<AgentReply>("/api/agent/chat", {
+    }) => {
+      if (isAuthenticated) {
+        // Signed in: full agent — persisted, credit-gated, OpenAI-config.
+        return apiPost<AgentReply>("/api/agent/chat", {
+          messages: vars.messages,
+          chatId: vars.chatId,
+          mode: vars.mode,
+          think: vars.think,
+          autonomy: vars.autonomy,
+        });
+      }
+      // Anonymous: chat via the public, rate-limited Kie endpoint (ephemeral,
+      // not persisted) so visitors can try the agent without signing in.
+      const r = await apiPost<{ reply: string }>("/api/hero/ai", {
         messages: vars.messages,
-        chatId: vars.chatId,
-        mode: vars.mode,
-        think: vars.think,
-        autonomy: vars.autonomy,
-      }),
+      });
+      return { reply: r.reply, configured: true, chatId: "" } as AgentReply;
+    },
     onSuccess: (data) => {
       if (data.chatId) setChatId(data.chatId);
       if (!data.configured) {
@@ -109,13 +117,6 @@ export function AgentConsole({
   function send(text?: string) {
     const content = (text ?? input).trim();
     if (!content || mutation.isPending) return;
-
-    // Require auth to actually generate.
-    if (!isAuthenticated) {
-      toast.info(m["agent.login_required"]());
-      router.push("/sign-in?callbackUrl=/agent");
-      return;
-    }
 
     const next: Message[] = [...messages, { role: "user", content }];
     setMessages(next);

@@ -210,7 +210,7 @@ export function getSettings(): Setting[] {
 
     // ─── AI / Kie ────────────────────────────────────────────────────
     { name: 'kie_api_key', title: 'API Key', type: 'password', placeholder: 'xxx', tip: 'Kie.ai Bearer token. Create one at https://kie.ai → API Keys', group: 'kie', tab: 'ai' },
-    { name: 'kie_chat_model', title: 'Chat Model', type: 'text', placeholder: 'gemini-3-flash', defaultValue: 'gemini-3-flash', tip: 'kie.ai chat model id (goes in the request URL path). Powers the live hero demo.', group: 'kie', tab: 'ai' },
+    { name: 'kie_chat_model', title: 'Chat Model', type: 'text', placeholder: 'gemini-3-5-flash-openai', defaultValue: 'gemini-3-5-flash-openai', tip: 'kie.ai chat model id (goes in the request URL path). Powers the live hero demo. gemini-3-5-flash-openai works on most accounts.', group: 'kie', tab: 'ai' },
 
     // ─── Analytics / Google Analytics ────────────────────────────────
     { name: 'google_analytics_id', title: 'Measurement ID', type: 'text', placeholder: 'G-XXXXXXXXXX', group: 'google_analytics', tab: 'analytics' },

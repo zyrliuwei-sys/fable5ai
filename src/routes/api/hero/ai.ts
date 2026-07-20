@@ -19,7 +19,7 @@ import { enforceMinIntervalRateLimit } from '@/lib/rate-limit';
 // (NOT the /api/v1/* task endpoints used for image/video/music).
 // `stream` defaults to true (SSE) on kie — we force false for a plain JSON reply.
 const KIE_BASE_URL = 'https://api.kie.ai';
-const DEFAULT_MODEL = 'gemini-3-flash';
+const DEFAULT_MODEL = 'gemini-3-5-flash-openai';
 const MAX_PROMPT = 1000;
 
 const SYSTEM_PROMPT =
@@ -35,15 +35,39 @@ async function POST({ request }: { request: Request }) {
 
   try {
     const body = await request.json().catch(() => null);
+
+    // Accept either a single `prompt` string (hero) or a `messages` array
+    // (multi-turn anonymous chat from /agent). Keep only valid text turns.
+    const msgsInput: { role: string; content: string }[] = Array.isArray(body?.messages)
+      ? body.messages
+          .filter(
+            (mm: any) =>
+              mm &&
+              (mm.role === 'user' || mm.role === 'assistant' || mm.role === 'system') &&
+              typeof mm.content === 'string'
+          )
+          .map((mm: any) => ({ role: mm.role, content: mm.content.trim() }))
+          .filter((mm: { content: string }) => mm.content)
+      : [];
     const prompt = typeof body?.prompt === 'string' ? body.prompt.trim() : '';
-    if (!prompt) return respErr('prompt is required');
-    if (prompt.length > MAX_PROMPT) return respErr('prompt too long');
+    if (msgsInput.length === 0 && !prompt) return respErr('prompt is required');
+
+    const totalLen =
+      msgsInput.reduce((n, mm) => n + mm.content.length, 0) + prompt.length;
+    if (totalLen > MAX_PROMPT * 6) return respErr('input too long');
 
     const apiKey = await getConfig('kie_api_key');
     if (!apiKey) {
       return respErr('Kie API key not configured. Add it in Admin → Settings → AI → Kie.');
     }
-    const model = (await getConfig('kie_chat_model')) || DEFAULT_MODEL;
+    // Caller may override the model (e.g. to test alternatives); else use config.
+    const model =
+      typeof body?.model === 'string' && body.model.trim()
+        ? body.model.trim()
+        : (await getConfig('kie_chat_model')) || DEFAULT_MODEL;
+
+    const turns =
+      msgsInput.length > 0 ? msgsInput : [{ role: 'user', content: prompt }];
 
     const resp = await fetch(`${KIE_BASE_URL}/${model}/v1/chat/completions`, {
       method: 'POST',
@@ -54,10 +78,7 @@ async function POST({ request }: { request: Request }) {
       body: JSON.stringify({
         stream: false,
         include_thoughts: false,
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: prompt },
-        ],
+        messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...turns],
       }),
     });
 
@@ -67,7 +88,14 @@ async function POST({ request }: { request: Request }) {
     }
 
     const data: any = await resp.json().catch(() => ({}));
+    // kie returns HTTP 200 with a {code, msg} envelope on logical errors
+    // (e.g. "The model is not supported"); surface those instead of an empty reply.
     const reply: string = data?.choices?.[0]?.message?.content ?? '';
+    if (!reply) {
+      const msg =
+        data?.msg || data?.error?.message || `Kie returned an empty reply (HTTP ${resp.status})`;
+      return respErr(`Kie: ${msg}`);
+    }
 
     return respData({ reply });
   } catch (error: any) {
