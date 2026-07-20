@@ -1,4 +1,4 @@
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { m } from "@/paraglide/messages.js";
 import { envConfigs } from "@/config";
 import { useSession } from "@/core/auth/client";
@@ -44,6 +44,15 @@ export function AgentNavbar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
       </div>
 
       <div className="flex items-center gap-2">
+        {/* Close the chat → back to the hero landing (homepage). */}
+        <Link
+          href="/"
+          aria-label={m["agent.close"]()}
+          title={m["agent.close"]()}
+          className="flex size-9 items-center justify-center rounded-[10px] text-foreground transition-colors hover:bg-accent active:bg-accent"
+        >
+          <X className="size-5" strokeWidth={1.75} />
+        </Link>
         {user ? (
           <SiteUserMenu
             name={user.name || "User"}

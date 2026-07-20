@@ -22,6 +22,7 @@ function AgentPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mode, setMode] = useState<CapabilityId>(DEFAULT_CAPABILITY);
   const [newChatNonce, setNewChatNonce] = useState(0);
+  const [clearChatNonce, setClearChatNonce] = useState(0);
 
   return (
     <div className="agent-app flex min-h-dvh flex-col bg-background text-foreground">
@@ -35,6 +36,7 @@ function AgentPage() {
             mode={mode}
             onSelectMode={setMode}
             newChatNonce={newChatNonce}
+            clearChatNonce={clearChatNonce}
           />
         </main>
       </div>
@@ -44,6 +46,7 @@ function AgentPage() {
         mode={mode}
         onSelectMode={setMode}
         onNewChat={() => setNewChatNonce((n) => n + 1)}
+        onClearChat={() => setClearChatNonce((n) => n + 1)}
       />
       <AgentSeo />
     </div>

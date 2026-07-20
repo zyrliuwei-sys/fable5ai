@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Plus, X, Lock, ArrowRight } from "lucide-react";
+import { Plus, X, Lock, ArrowRight, Trash2 } from "lucide-react";
 import { m } from "@/paraglide/messages.js";
 import { tDynamic } from "@/core/i18n/dynamic";
 import { useSession } from "@/core/auth/client";
@@ -20,12 +20,14 @@ export function AgentSidebar({
   mode,
   onSelectMode,
   onNewChat,
+  onClearChat,
 }: {
   open: boolean;
   onClose: () => void;
   mode: CapabilityId;
   onSelectMode: (id: CapabilityId) => void;
   onNewChat: () => void;
+  onClearChat: () => void;
 }) {
   const { data: session } = useSession();
   const user = session?.user;
@@ -89,6 +91,18 @@ export function AgentSidebar({
           >
             <Plus className="size-4" />
             {m["agent.new_chat"]()}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (!window.confirm(m["agent.clear_chat_confirm"]())) return;
+              onClearChat();
+              onClose();
+            }}
+            className="mt-1 flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+          >
+            <Trash2 className="size-4" />
+            {m["agent.clear_chat"]()}
           </button>
         </div>
 

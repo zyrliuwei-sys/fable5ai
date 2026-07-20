@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { User } from "lucide-react";
 import { m } from "@/paraglide/messages.js";
 import { tDynamic } from "@/core/i18n/dynamic";
-import { apiGet, apiPost } from "@/lib/api-client";
+import { apiGet, apiPost, apiDelete } from "@/lib/api-client";
 import { useSession } from "@/core/auth/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -27,10 +27,12 @@ export function AgentConsole({
   mode,
   onSelectMode,
   newChatNonce,
+  clearChatNonce,
 }: {
   mode: CapabilityId;
   onSelectMode: (id: CapabilityId) => void;
   newChatNonce: number;
+  clearChatNonce: number;
 }) {
   const { data: session } = useSession();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -40,6 +42,9 @@ export function AgentConsole({
   const [think, setThink] = useState(true);
   const [loaded, setLoaded] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  // Mirror chatId into a ref so the nonce effects can read the latest value
+  // without depending on it (which would re-fire mid-conversation).
+  const chatIdRef = useRef("");
 
   const isAuthenticated = !!session?.user;
 
@@ -58,14 +63,34 @@ export function AgentConsole({
     }
   }, [loaded, historyQuery.data]);
 
-  // "New Chat" from the sidebar clears the local view.
+  // Keep chatIdRef in sync with state for the archive-on-reset effects below.
   useEffect(() => {
-    if (newChatNonce > 0) {
-      setMessages([]);
-      setChatId("");
-      setInput("");
+    chatIdRef.current = chatId;
+  }, [chatId]);
+
+  // Archive the current conversation server-side (so it stops coming back on
+  // reload) and clear the local view. Used by both "New Chat" and "Clear chat".
+  const resetConversation = useCallback(() => {
+    const id = chatIdRef.current;
+    if (id) {
+      apiDelete(`/api/agent/chat?chatId=${encodeURIComponent(id)}`).catch(
+        (e: Error) => toast.error(e?.message || m["agent.clear_error"]())
+      );
     }
-  }, [newChatNonce]);
+    setMessages([]);
+    setChatId("");
+    setInput("");
+  }, []);
+
+  // "New Chat" from the sidebar archives the old conversation and starts fresh.
+  useEffect(() => {
+    if (newChatNonce > 0) resetConversation();
+  }, [newChatNonce, resetConversation]);
+
+  // "Clear chat" from the sidebar — same reset, semantically a delete.
+  useEffect(() => {
+    if (clearChatNonce > 0) resetConversation();
+  }, [clearChatNonce, resetConversation]);
 
   const mutation = useMutation({
     mutationFn: async (vars: {
